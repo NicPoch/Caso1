@@ -1,0 +1,10 @@
+-Cliente
+	-número de mensajes que tiene que enviar
+-Ver lo de mensaje
+-modificar servidor: 1 servidor que hace muchas peticiones (en forma de threads)
+-terminar cuando no existan clientes
+-hacer lector de archivos
+
+##Preguntar lo de número de servidores
+##Yield?
+##Lo del cliente?

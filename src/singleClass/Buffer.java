@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Buffer
 {
+	
 	/**
 	 * capacidad del buffer
 	 */
@@ -75,6 +76,7 @@ public class Buffer
 		{
 			lleno.notify();
 		}
+
 		return m;
 	}
 }
