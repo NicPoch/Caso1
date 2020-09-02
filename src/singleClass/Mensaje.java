@@ -69,7 +69,6 @@ public class Mensaje extends Thread
 	{
 		try 
 		{
-			System.out.println("Se va a enviar el mensaje "+id);
 			buffer.inputMessage(this);
 			System.out.println(this.toString());
 		} catch (InterruptedException e) 

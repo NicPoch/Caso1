@@ -6,14 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Buffer
 {
 	/**
-	 * el mutex de acceso para quitar elementos del buffer
-	 */
-	private AtomicInteger mutexArrayList;
-	/**
-	 * el objeto para hacer esperar servidores para que quiten mensajes
-	 */
-	private Object esperaAcceso;
-	/**
 	 * capacidad del buffer
 	 */
 	private int capacidad;
@@ -37,19 +29,13 @@ public class Buffer
 	{
 		this.capacidad=capacidad;
 		buffer= new ArrayList<Mensaje>();
-		mutexArrayList= new AtomicInteger(0);
 		lleno=new Object();
 		vacio=new Object();
-		esperaAcceso=new Object();
 	}
 	
 	public void inputMessage(Mensaje m) throws InterruptedException
 	{
-		mutexArrayList.addAndGet(1);
-		synchronized (esperaAcceso) 
-		{
-			esperaAcceso.notify();
-		}
+		
 		if(buffer.size()==capacidad)
 		{
 			synchronized (lleno)
@@ -73,13 +59,6 @@ public class Buffer
 	
 	public Mensaje getMessage() throws InterruptedException
 	{
-		if(mutexArrayList.get()==0)
-		{
-			synchronized (esperaAcceso)
-			{
-				esperaAcceso.wait();
-			}
-		}
 		if(buffer.size()==0)
 		{
 			synchronized (vacio)
@@ -90,7 +69,6 @@ public class Buffer
 		Mensaje m;
 		synchronized (this)
 		{
-			mutexArrayList.getAndDecrement();
 			m=buffer.remove(0);
 		}
 		synchronized (lleno) 

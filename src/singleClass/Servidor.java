@@ -1,6 +1,7 @@
 package singleClass;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.lang.IndexOutOfBoundsException;
 
 public class Servidor extends Thread
 {
@@ -51,22 +52,28 @@ public class Servidor extends Thread
 		}		
 	}
 	@Override
-	public void run()
+	public void run() 
 	{
 		System.out.println("Server "+id+" start!");
-		try
+		while(true)
 		{
-			while(true)
+			try
 			{
-				System.out.println("Server "+id+" answers: "+messageAns);
-				ansMesage();
+				while(true)
+				{
+					System.out.println("Server "+id+" answers: "+messageAns);
+					ansMesage();
+				}
 			}
-		}
-		catch(InterruptedException e)
-		{
-			System.out.println("Server "+id+" stopped!");
-			e.printStackTrace();
-		}
-		
+			catch(IndexOutOfBoundsException e)
+			{
+				continue;
+			}
+			catch(Exception e)
+			{
+				System.out.println("Server "+id+" stopped!");
+				e.printStackTrace();
+			}
+		}		
 	}
 }
