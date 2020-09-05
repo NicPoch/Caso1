@@ -1,6 +1,7 @@
 package singleClass;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Date;
 
 public class Mensaje extends Thread 
 {
@@ -37,6 +38,14 @@ public class Mensaje extends Thread
 	 */
 	private  int serverId;
 	/**
+	 * el momento que fue creado el mensaje
+	 */
+	private Date create;
+	/**
+	 * el momento que fue respondido
+	 */
+	private Date answered;
+	/**
 	 * El constructor del mensaje
 	 * @param clientPart el mensaje del cliente
 	 * @param buffer el buffer
@@ -49,6 +58,7 @@ public class Mensaje extends Thread
 		id=messageIds.getAndIncrement();
 		pendingAns=new Object();
 		this.buffer=buffer;
+		this.create=new Date();
 	}
 	/**
 	 * Recibe la respuesta del servidor
@@ -57,12 +67,17 @@ public class Mensaje extends Thread
 	 */
 	public void setAns(String serverPart, int serverId)
 	{
+		this.answered=new Date();
 		this.serverPart=serverPart;
 		this.serverId=serverId;
 	}
 	public String toString()
 	{
-		return "Message "+id+": (Cliente "+clientId+": "+clientPart+"), (Servidor "+serverId+": "+serverPart+")";
+		@SuppressWarnings("deprecation")
+		String cl="Client: "+clientId+", "+clientPart+", "+create.getHours()+":"+create.getMinutes()+":"+create.getSeconds();
+		@SuppressWarnings("deprecation")
+		String sv="Server: "+serverId+", "+serverPart+", "+answered.getHours()+":"+answered.getMinutes()+":"+answered.getSeconds();;
+		return "Message "+id+": ("+cl+"), ("+sv+")";
 	}
 	@Override
 	public void run()

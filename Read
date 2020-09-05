@@ -5,6 +5,6 @@
 -terminar cuando no existan clientes
 -hacer lector de archivos
 
-##Preguntar lo de número de servidores
-##Yield?
-##Lo del cliente?
+##Preguntar lo de número de servidores// muchos servidores 1 solo thread
+##Yield? // hacerlo como manejo de excepción
+##Lo del cliente?//un cliente muchos mensajes

@@ -1,7 +1,8 @@
 package singleClass;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.lang.IndexOutOfBoundsException;
+
+import singleClass.Buffer.StoppedServerException;
 
 public class Servidor extends Thread
 {
@@ -41,7 +42,7 @@ public class Servidor extends Thread
 		mensaje=null;
 		messageAns=0;
 	}
-	public void ansMesage() throws InterruptedException
+	public void ansMesage() throws InterruptedException, StoppedServerException
 	{
 		mensaje=buffer.getMessage();
 		messageAns++;
@@ -55,25 +56,35 @@ public class Servidor extends Thread
 	public void run() 
 	{
 		System.out.println("Server "+id+" start!");
-		while(true)
+		boolean go=true;
+		while(go)
 		{
 			try
 			{
-				while(true)
+				while(go)
 				{
-					System.out.println("Server "+id+" answers: "+messageAns);
-					ansMesage();
+					if(buffer.shouldIgo())
+					{
+						System.out.println("Server "+id+" answers: "+messageAns);
+						ansMesage();
+					}
+					else
+					{
+						go=false;
+					}
+					
 				}
 			}
-			catch(IndexOutOfBoundsException e)
+			catch (StoppedServerException e)
 			{
-				continue;
+				go=false;
 			}
 			catch(Exception e)
 			{
 				System.out.println("Server "+id+" stopped!");
 				e.printStackTrace();
 			}
-		}		
+		}
+		System.out.println("No more clients server "+id+" stopping");
 	}
 }
