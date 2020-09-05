@@ -1,23 +1,29 @@
 package singleClass;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Main 
 {
-	public static void main(String[] args) throws InterruptedException 
+	public static void main(String[] args) throws InterruptedException, FileNotFoundException 
 	{
 		System.out.println("Start Main");
+		
+		File file= new File("C:\\Users\\Nicolas\\eclipse-workspace\\Caso1\\excTextFile.txt");
+		Scanner myReader = new Scanner(file);
 		//lee número de clientes
-		int numClientes=Integer.parseInt(args[0]);
+		int numClientes=Integer.parseInt(myReader.nextLine());
 		//lee número de servidores
-		int numServidores=Integer.parseInt(args[1]);
+		int numServidores=Integer.parseInt(myReader.nextLine());
 		//el contenido que va a llevar cada mensaje
-		String contenido=args[2];
+		String contenido=myReader.nextLine();
 		//la respuesta de cada servidor
-		String respuesta=args[3];
+		String respuesta=myReader.nextLine();
 		//el tamaño del buffer
-		int bufferSize = Integer.parseInt(args[4]);
+		int bufferSize = Integer.parseInt(myReader.nextLine());
 		//arreglo de threads clientes
 		ArrayList<Cliente> clientes = new ArrayList<>();
 		//arreglo de los threads servidores

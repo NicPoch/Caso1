@@ -1,0 +1,5 @@
+10000
+10
+hola soy cliente :3
+hola soy servidor :VK
+10
