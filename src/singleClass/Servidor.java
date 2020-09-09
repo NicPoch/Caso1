@@ -27,7 +27,7 @@ public class Servidor extends Thread
 	 */
 	private Buffer buffer;
 	
-	private int messageAns;
+	
 	/**
 	 * el constructor de servidores
 	 * @param id el identificador del servidor
@@ -40,12 +40,11 @@ public class Servidor extends Thread
 		this.respuesta=respuesta;
 		this.buffer=buffer;
 		mensaje=null;
-		messageAns=0;
+		
 	}
 	public void ansMesage() throws InterruptedException, StoppedServerException
 	{
 		mensaje=buffer.getMessage();
-		messageAns++;
 		mensaje.setAns(respuesta, id);
 		synchronized (mensaje.pendingAns) 
 		{
@@ -65,7 +64,6 @@ public class Servidor extends Thread
 				{
 					if(buffer.shouldIgo())
 					{
-						System.out.println("Server "+id+" answers: "+messageAns);
 						ansMesage();
 					}
 					else

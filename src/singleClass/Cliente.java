@@ -1,5 +1,6 @@
 package singleClass;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Cliente extends Thread
@@ -25,32 +26,47 @@ public class Cliente extends Thread
 	 */
 	private int numEnvios;
 	
+	
 	public Cliente(String contenido,Buffer buffer,int numEnvios)
 	{
 		id=clientIds.getAndIncrement();
 		this.contenido=contenido;
 		this.buffer=buffer;
 		this.numEnvios=numEnvios;
+		
 	}	
+	
+	
 
 	@Override
 	public void run()
 	{
 		System.out.println("Cliente "+id+" sign in!");
 		buffer.signIn();
+		ArrayList<Mensaje> mensajes= new ArrayList<>();
 		for(int i=0;i<numEnvios;i++)
 		{
 			Mensaje m = new Mensaje(contenido, buffer, id);
+			mensajes.add(m);
+		}
+		for(Mensaje m: mensajes)
+		{
 			m.start();
-			try {
+		}
+		for(Mensaje m : mensajes)
+		{
+			try 
+			{
 				m.join();
-			} catch (InterruptedException e) {
+				
+			} catch (InterruptedException e) 
+			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		System.out.println("Cliente "+id+" sign out!");
-		buffer.signOut();
+		buffer.signOut(this.id);
+		System.out.println("Cliente "+id+" sign out!");		
 	}	
 	
 }

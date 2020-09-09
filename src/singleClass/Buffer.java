@@ -10,6 +10,14 @@ public class Buffer
 	 */
 	private AtomicInteger clientesActivos;
 	/**
+	 * va a determinar los servidores usando el buffer
+	 */
+	private AtomicInteger servidores;
+	/**
+	 * mensajes que pasaron por el buffer
+	 */
+	private AtomicInteger delivered;
+	/**
 	 * capacidad del buffer
 	 */
 	private int capacidad;
@@ -25,6 +33,8 @@ public class Buffer
 	 * para avisar a los servidores
 	 */
 	private Object vacio;
+	
+	private Boolean activateRemover;
 	/**
 	 * El constructor del buffer
 	 * @param capacidad la capacidad del buffer
@@ -36,6 +46,9 @@ public class Buffer
 		lleno=new Object();
 		vacio=new Object();
 		clientesActivos=new AtomicInteger(0);
+		servidores=new AtomicInteger(0);
+		delivered=new AtomicInteger(0);
+		activateRemover=true;
 	}
 	public void signIn()
 	{
@@ -44,24 +57,42 @@ public class Buffer
 			int i=clientesActivos.incrementAndGet();
 			if(i==1)
 			{
+				synchronized (activateRemover) 
+				{
+					activateRemover=false;
+				}
 				System.out.println("Buffer Start");
 			}
 		}
 	}
-	public void signOut()
+	public void signOut(int id)
 	{
+		
 		synchronized (clientesActivos)
 		{
 			int i=clientesActivos.decrementAndGet();
-			if(i==0)
+			System.out.println("Quedan "+i+" se pi "+id);
+			synchronized (buffer) 
+			{
+				System.out.println("Quedan buffer"+buffer.size());
+			}
+			if(i<=0)
 			{
 				System.out.println("Buffer Stopping");
+				synchronized (activateRemover) 
+				{
+					activateRemover=true;
+				}
 			}
 		}
-		synchronized (vacio) 
+		synchronized (activateRemover) 
 		{
-			vacio.notify();
+			if(activateRemover)
+			{
+				remover();
+			}
 		}
+		
 	}
 	public void inputMessage(Mensaje m) throws InterruptedException
 	{
@@ -76,23 +107,45 @@ public class Buffer
 		synchronized (this)
 		{
 			buffer.add(m);
-		}
-		synchronized (vacio) 
-		{
-			vacio.notify();
-		}
+			synchronized (vacio) 
+			{
+				vacio.notifyAll();
+			}
+		}		
 		synchronized(m.pendingAns) 
 		{
 			m.pendingAns.wait();
 		}
+		synchronized (delivered) 
+		{
+			delivered.incrementAndGet();
+		}
 	}
-	
+	public int getDelivered()
+	{
+		return delivered.get();
+	}
 	public Mensaje getMessage() throws InterruptedException, StoppedServerException
 	{
+		
 		try
-		{		
-			if(buffer.size()==0)
+		{	
+			synchronized (servidores) 
 			{
+				System.out.println("Servidores "+servidores.incrementAndGet());	
+				
+			}
+			synchronized (buffer) 
+			{
+				
+			}
+			int sizeBuff;
+			synchronized (this)
+			{
+				sizeBuff=buffer.size();
+			}
+			if(sizeBuff==0)
+			{				
 				synchronized (vacio)
 				{
 					vacio.wait();
@@ -100,26 +153,35 @@ public class Buffer
 			}		
 			Mensaje m;
 			synchronized (this)
-			{
+			{				
 				m=buffer.remove(0);
 			}
 			synchronized (lleno) 
 			{
 				lleno.notify();
 			}
-
-			return m;
+			synchronized (servidores) 
+			{
+				System.out.println("Servidores "+servidores.decrementAndGet());		
+				return m;
+			}
+			
 		}
 		catch(IndexOutOfBoundsException e)
 		{
-			if(!shouldIgo())
+			synchronized (servidores) 
 			{
-				throw new StoppedServerException();
+				System.out.println("Servidores "+servidores.decrementAndGet());				
 			}
+			if(!shouldIgo())
+			{				
+				throw new StoppedServerException();
+			}			
 			Thread.yield();
 			return getMessage();
 		}	
 	}
+	
 	public boolean shouldIgo()
 	{
 		synchronized (clientesActivos) 
@@ -127,11 +189,41 @@ public class Buffer
 			return clientesActivos.get()>0;
 		}
 	}	
+	
+	@SuppressWarnings("serial")
 	public class StoppedServerException extends Exception
 	{
 		public StoppedServerException()
 		{
 			super();
 		}
+	}
+	
+	private void remover()
+	{		
+		System.out.println("REMOVE");
+		try 
+		{
+			Thread.sleep(100);
+			synchronized (vacio)
+			{
+				vacio.notifyAll();
+			}
+			boolean go=false;
+			synchronized (servidores) 
+			{
+				if(servidores.get()>0)
+				{
+					go=true;
+				}
+			}
+			if(go)
+			{
+				remover();
+			}
+		} catch (InterruptedException e) 
+		{
+			e.printStackTrace();
+		}		
 	}
 }

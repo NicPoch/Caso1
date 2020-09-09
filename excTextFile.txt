@@ -1,5 +1,5 @@
-10000
-10
+100
+300
 hola soy cliente :3
 hola soy servidor :VK
-10
+5

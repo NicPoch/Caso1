@@ -31,10 +31,12 @@ public class Main
 		//el buffer que se va a usar
 		Buffer buffer = new Buffer(bufferSize);
 		//Se crean los clientes
-		Random r = new Random();
+		Random r = new Random();		
+		int mensajes=0;
 		for(int i=0; i<numClientes;i++)
 		{
-			int numEnvios = r.nextInt(2-1) +1;
+			int numEnvios = r.nextInt(3-1) +1;
+			mensajes+=numEnvios;
 			Cliente c = new Cliente(contenido, buffer,numEnvios);
 			clientes.add(c);
 		}
@@ -52,19 +54,24 @@ public class Main
 		{
 			s.start();
 		}
+		
 		for(int i=0;i<Math.max(clientes.size(), servidores.size());i++)
 		{
 			if(i<clientes.size())
 			{
-				Thread c=clientes.remove(0);
+				Cliente c=clientes.remove(0);
 				c.join();
+				
 			}
 			if(i<servidores.size())
 			{
-				Thread s =servidores.remove(0);
+				Servidor s =servidores.remove(0);
 				s.join();
+				
 			}
 		}
 		System.out.println("End Main");
+		myReader.close();
+		System.out.println("Iguales respuesta a peticiones num envios es "+mensajes+" buffer "+buffer.getDelivered());
 	}
 }
